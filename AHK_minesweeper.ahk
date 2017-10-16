@@ -8,7 +8,7 @@ delayer := 50
 ;鼠标速度
 SetDefaultMouseSpeed, 0
 
-;提示窗口
+;提示窗口777
 ; CoordMode, ToolTip, Screen
 
 ;激活扫雷窗口
@@ -119,6 +119,12 @@ if (not did_open) {
     ; 检查有没有猜错，猜错了就结束
     PixelGetColor, Getcolor, edge_blocks[min_marks_step].x - 6, edge_blocks[min_marks_step].y - 6, RGB
     if (Getcolor == 0xFF0000) { 
+        MsgBox, 5, , Bad luck.
+        IfMsgBox, Retry 
+        {
+            Click 257, 75 ; 点笑脸重新开始
+            Goto, 初始化面板
+        }
         Reload
     }
 }
@@ -302,7 +308,7 @@ possible_panels(blocks) {
             ; }
         }
         ;print_list_of_list(new_possible_panels)
-        ToolTip, % "Steps: " new_possible_panels[1].length() " / " edge_blocks.length() "`rPossible panels found: " new_possible_panels.length()
+        ToolTip, % "Step: " new_possible_panels[1].length() " / " edge_blocks.length() "`rPossible panels found: " new_possible_panels.length()
         ; progressee := new_possible_panels[1].length() / edge_blocks.length() * 100
         ; textee := "Steps: " new_possible_panels[1].length() " / " edge_blocks.length() "`rPossible panels found: " new_possible_panels.length()
         ; Progress, %progressee%, %textee%, ,Processing...
