@@ -9,7 +9,7 @@ delayer := 50
 SetDefaultMouseSpeed, 0
 
 ;提示窗口
-CoordMode, ToolTip, Screen
+; CoordMode, ToolTip, Screen
 
 ;激活扫雷窗口
 WinWait, 扫雷
@@ -47,32 +47,15 @@ for r in sixteen {
     }
 }
 
-第一步: ;读面板
-for r in sixteen {
-    ; Mousemove, 10, y_of_r(r)
-    for c in thirty {
-        progressee := ((r - 1) * 30 + c) / (30 * 16) * 100
-        Progress, %progressee%, Reading panel..., , Processing...
-        ; blocktable[r, c].MouseOn()
-        ; msgbox, % "是否打开：" blocktable[r, c].openned "`r是否插旗：" blocktable[r, c].flagged
-        if !(blocktable[r, c].openned == 1 or blocktable[r, c].flagged == 1) { ; 如果已经记录过了，就不用管了，没记录过再看
-            PixelGetColor, Getcolor, x_of_c(c)-halfsize, y_of_r(r), RGB
-            if (Getcolor != white) { ;边缘不是白色说明开了
-                blocktable[r, c].openned := 1
-                PixelGetColor, Getcolor, x_of_c(c), y_of_r(r), RGB
-                blocktable[r, c].num := color_to_num[Getcolor]
-            }
-        }
-    }
-}
-progress, off
+第一步: ;点开中间的一个
+blocktable[8, 15].open()
 
 
 第二步: ;找到边缘所有block
 edge_blocks := []
 for r in sixteen {
     for c in thirty {  
-        if (blocktable[r, c].num != 0) {
+        if (blocktable[r, c].num > 0) {
             for i, block in surrounding_blocks(blocktable[r, c]) {
                 if (block.openned == 0 && block.flagged == 0) {
                     if (not isin(block, edge_blocks)) {
@@ -84,11 +67,16 @@ for r in sixteen {
     }
 }
 
+; 没有了就结束
+if (edge_blocks == []) {
+    Reload
+}
 
 第三步: ;概率最小的点开
 
 possible_panels := possible_panels(edge_blocks)
-progress, off
+ToolTip
+; progress, off
 
 ;用于累加每个block出现雷的次数
 counts := [] 
@@ -127,9 +115,15 @@ if (not did_open) {
         }    
     } 
     edge_blocks[min_marks_step].open()
+
+    ; 检查有没有猜错，猜错了就结束
+    PixelGetColor, Getcolor, edge_blocks[min_marks_step].x - 6, edge_blocks[min_marks_step].y - 6, RGB
+    if (Getcolor == 0xFF0000) { 
+        Reload
+    }
 }
 
-Goto, 第一步
+Goto, 第二步
 
 ;===============================子过程======================================
 
@@ -162,7 +156,7 @@ class Block {
         this.y := y_of_r(r)
         this.flagged := 0
         this.openned := 0
-        this.num := 0
+        this.num := ""
     }
 
     open() {
@@ -170,7 +164,7 @@ class Block {
             Mousemove, this.x, this.y
             Click
             this.openned := 1
-            if (this.num == 0) { ;没有检查过数字的话就检查一下
+            if (this.num == "") { ;没有检查过数字的话就检查一下
                 PixelGetColor, Getcolor, this.x, this.y, RGB
                 this.num := ColorToNum(Getcolor)
                 if (this.num == 0) { ;如果点开发现是空的，就会打开四周
@@ -179,8 +173,7 @@ class Block {
                     }
                 }
             }
-        }
-        
+        }   
     }
 
     flag() {
@@ -253,7 +246,7 @@ possible_panels(blocks) {
             ; blocks[panel.length()+1].MouseOn()
             ; msgbox, 走到这里了
             for i, block in surrounding_blocks(blocks[panel.length()+1]) { ;走到当前这一块，它的周围8个遍历
-                if (block.num != 0) { ;有数字的block
+                if (block.num > 0) { ;有数字的block
 
                     ; 计算未点开的block的数量和旗子的数量
                     close_block_num := 0
@@ -309,10 +302,10 @@ possible_panels(blocks) {
             ; }
         }
         ;print_list_of_list(new_possible_panels)
-        ; ToolTip, % "Steps: " new_possible_panels[1].length() " / " edge_blocks.length() "`rPossible panels found: " new_possible_panels.length(), 960, 900, 3
-        progressee := new_possible_panels[1].length() / edge_blocks.length() * 100
-        textee := "Steps: " new_possible_panels[1].length() " / " edge_blocks.length() "`rPossible panels found: " new_possible_panels.length()
-        Progress, %progressee%, %textee%, ,Processing...
+        ToolTip, % "Steps: " new_possible_panels[1].length() " / " edge_blocks.length() "`rPossible panels found: " new_possible_panels.length()
+        ; progressee := new_possible_panels[1].length() / edge_blocks.length() * 100
+        ; textee := "Steps: " new_possible_panels[1].length() " / " edge_blocks.length() "`rPossible panels found: " new_possible_panels.length()
+        ; Progress, %progressee%, %textee%, ,Processing...
 
         return new_possible_panels
     }
