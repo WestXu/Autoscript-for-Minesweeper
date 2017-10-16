@@ -170,8 +170,15 @@ class Block {
             Mousemove, this.x, this.y
             Click
             this.openned := 1
-            PixelGetColor, Getcolor, this.x, this.y, RGB
-            this.num := ColorToNum(Getcolor)
+            if (this.num == 0) { ;没有检查过数字的话就检查一下
+                PixelGetColor, Getcolor, this.x, this.y, RGB
+                this.num := ColorToNum(Getcolor)
+                if (this.num == 0) { ;如果点开发现是空的，就会打开四周
+                    for i, block in surrounding_blocks(this) {
+                        block.open()
+                    }
+                }
+            }
         }
         
     }
