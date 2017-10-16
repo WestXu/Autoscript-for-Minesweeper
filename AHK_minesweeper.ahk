@@ -53,12 +53,16 @@ for r in sixteen {
     for c in thirty {
         progressee := ((r - 1) * 30 + c) / (30 * 16) * 100
         Progress, %progressee%, Reading panel..., , Processing...
-        PixelGetColor, Getcolor, x_of_c(c)-halfsize, y_of_r(r), RGB
-        if (Getcolor != white) { ;边缘不是白色说明开了
-            blocktable[r, c].openned := 1
-            PixelGetColor, Getcolor, x_of_c(c), y_of_r(r), RGB
-            blocktable[r, c].num := color_to_num[Getcolor]
-        }
+        ; blocktable[r, c].MouseOn()
+        ; msgbox, % "是否打开：" blocktable[r, c].openned "`r是否插旗：" blocktable[r, c].flagged
+        ;  if !(blocktable[r, c].openned == 1 or blocktable[r, c].flagged == 1) { ; 如果已经记录过了，就不用管了，没记录过再看
+            PixelGetColor, Getcolor, x_of_c(c)-halfsize, y_of_r(r), RGB
+            if (Getcolor != white) { ;边缘不是白色说明开了
+                blocktable[r, c].openned := 1
+                PixelGetColor, Getcolor, x_of_c(c), y_of_r(r), RGB
+                blocktable[r, c].num := color_to_num[Getcolor]
+            }
+        ;  }
     }
 }
 progress, off
@@ -70,7 +74,7 @@ for r in sixteen {
     for c in thirty {  
         if (and blocktable[r, c].num != 0) {
             for i, block in surrounding_blocks(blocktable[r, c]) {
-                if (block.openned == 0) {
+                if (block.openned == 0 && block.flagged == 0) {
                     if (not isin(block, edge_blocks)) {
                         edge_blocks.insert(block)
                     }
@@ -238,12 +242,15 @@ possible_panels(blocks) {
             for i, block in surrounding_blocks(blocks[panel.length()+1]) { ;走到当前这一块，它的周围8个遍历
                 if (block.num != 0) { ;有数字的block
 
-                    ; 计算未点开的block的数量
+                    ; 计算未点开的block的数量和旗子的数量
                     close_block_num := 0
+                    flags := 0
                     for i, block2 in surrounding_blocks(block) { ;数字周围的block
                         if (block2.openned == 0) {
                             close_block_num++
                         }
+                        if (block2.flagged == 1)
+                            flags++
                     }
                     
                     ; 计算已经标记了1和0的数量
@@ -262,7 +269,7 @@ possible_panels(blocks) {
                     if (block.num == close_block_num - marked_zeros) { ;满足条件一，不可以无雷
                         reject0 := True                    
                     }
-                    if (block.num == marked_ones) { ;满足条件二，不可以有雷
+                    if (block.num == marked_ones + flags) { ;满足条件二，不可以有雷
                         reject1 := True 
                         ; block.MouseOn()
                         ; msgbox, % "路径" n " 正在拒绝1`r" block.num " == " marked_ones
