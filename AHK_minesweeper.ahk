@@ -49,20 +49,20 @@ for r in sixteen {
 
 第一步: ;读面板
 for r in sixteen {
-    Mousemove, 10, y_of_r(r)
+    ; Mousemove, 10, y_of_r(r)
     for c in thirty {
         progressee := ((r - 1) * 30 + c) / (30 * 16) * 100
         Progress, %progressee%, Reading panel..., , Processing...
         ; blocktable[r, c].MouseOn()
         ; msgbox, % "是否打开：" blocktable[r, c].openned "`r是否插旗：" blocktable[r, c].flagged
-        ;  if !(blocktable[r, c].openned == 1 or blocktable[r, c].flagged == 1) { ; 如果已经记录过了，就不用管了，没记录过再看
+        if !(blocktable[r, c].openned == 1 or blocktable[r, c].flagged == 1) { ; 如果已经记录过了，就不用管了，没记录过再看
             PixelGetColor, Getcolor, x_of_c(c)-halfsize, y_of_r(r), RGB
             if (Getcolor != white) { ;边缘不是白色说明开了
                 blocktable[r, c].openned := 1
                 PixelGetColor, Getcolor, x_of_c(c), y_of_r(r), RGB
                 blocktable[r, c].num := color_to_num[Getcolor]
             }
-        ;  }
+        }
     }
 }
 progress, off
@@ -88,6 +88,7 @@ for r in sixteen {
 第三步: ;概率最小的点开
 
 possible_panels := possible_panels(edge_blocks)
+progress, off
 
 ;用于累加每个block出现雷的次数
 counts := [] 
@@ -169,6 +170,8 @@ class Block {
             Mousemove, this.x, this.y
             Click
             this.openned := 1
+            PixelGetColor, Getcolor, this.x, this.y, RGB
+            this.num := ColorToNum(Getcolor)
         }
         
     }
@@ -184,6 +187,11 @@ class Block {
     MouseOn() {
         Mousemove, this.x, this.y
     }
+}
+
+ColorToNum(color1) {
+    global color_to_num
+    return color_to_num[color1]
 }
 
 isin(item, collection){
@@ -293,14 +301,11 @@ possible_panels(blocks) {
             ;     msgbox, % "路径" n " 两个都被拒绝了"
             ; }
         }
-        print_list_of_list(new_possible_panels)
-        ToolTip, % "Steps: " new_possible_panels[1].length() " / " edge_blocks.length() "`rPossible panels found: " new_possible_panels.length(), 960, 900, 3
-        ; length_now := 
-        ; length_total := 
-        ; progressee := new_possible_panels[1].length() / edge_blocks.length() * 100
-        ; textee := "Steps: " new_possible_panels[1].length() " / " edge_blocks.length()
-        ; Progress, %progressee%, %textee%, ,Processing...
-        ; Progress, off
+        ;print_list_of_list(new_possible_panels)
+        ; ToolTip, % "Steps: " new_possible_panels[1].length() " / " edge_blocks.length() "`rPossible panels found: " new_possible_panels.length(), 960, 900, 3
+        progressee := new_possible_panels[1].length() / edge_blocks.length() * 100
+        textee := "Steps: " new_possible_panels[1].length() " / " edge_blocks.length() "`rPossible panels found: " new_possible_panels.length()
+        Progress, %progressee%, %textee%, ,Processing...
 
         return new_possible_panels
     }
