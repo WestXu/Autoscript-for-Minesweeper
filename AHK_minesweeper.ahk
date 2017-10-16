@@ -49,7 +49,7 @@ for r in sixteen {
 
 第一步: ;读面板
 for r in sixteen {
-    ; Mousemove, 10, y_of_r(r)
+    Mousemove, 10, y_of_r(r)
     for c in thirty {
         progressee := ((r - 1) * 30 + c) / (30 * 16) * 100
         Progress, %progressee%, Reading panel..., , Processing...
@@ -72,7 +72,7 @@ progress, off
 edge_blocks := []
 for r in sixteen {
     for c in thirty {  
-        if (and blocktable[r, c].num != 0) {
+        if (blocktable[r, c].num != 0) {
             for i, block in surrounding_blocks(blocktable[r, c]) {
                 if (block.openned == 0 && block.flagged == 0) {
                     if (not isin(block, edge_blocks)) {
@@ -215,9 +215,7 @@ surrounding_blocks(block) {
                 real_r := block.r + small_r
                 real_c := block.c + small_c
                 if (real_r > 0 and real_r <= 16 and real_c >0 and real_c <= 30) {
-                    if (not isin(blocktable[real_r, real_c], surrounding_blocks)) {
                         surrounding_blocks.insert(blocktable[real_r, real_c])
-                    }
                 }
             }
         }
