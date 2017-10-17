@@ -48,7 +48,7 @@ for r in sixteen {
 }
 
 第一步: ;点开中间的一个
-blocktable[8, 15].Open()
+blocktable[1, 1].Open()
 
 
 第二步: ;找到边缘所有block
