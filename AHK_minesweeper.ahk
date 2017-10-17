@@ -43,13 +43,47 @@ firstblock_y := top_y + halfsize
 blocktable := {}
 for r in sixteen {
     for c in thirty {    
-    blocktable[r, c] := new Block(r, c)
+        blocktable[r, c] := new Block(r, c)
     }
 }
 
 第一步: ;点开中间的一个
 blocktable[1, 1].Open()
 
+
+New: 
+loop {
+dealed := 0
+for r in sixteen {
+    for c in thirty {
+        check_block := blocktable[r, c]
+        if (not check_block.finalled) {
+            if (check_block.num > 0) {
+                flags := 0 
+                close_block_num := 0
+                for i, block in SurrondingBlocks(check_block) {
+                    if (block.openned == 0) {
+                        close_block_num++
+                        if (block.flagged == 1) {
+                            flags++
+                        }
+                    }
+                }
+                if (check_block.num == flags) {
+                    for i, block in SurrondingBlocks(check_block) {
+                        if (block.openned == 0 && block.flagged == 0) {
+                            block.Open()
+                            dealed++
+                        }
+                    }
+                    block.finalled := True
+                }
+            }    
+        }
+    }
+}
+; msgbox, %dealed%
+} Until dealed == 0
 
 第二步: ;找到边缘所有block
 edge_blocks := []
@@ -129,7 +163,7 @@ if (not did_open) {
     }
 }
 
-Goto, 第二步
+Goto, New
 
 ;===============================子过程======================================
 
@@ -163,10 +197,11 @@ class Block {
         this.flagged := 0
         this.openned := 0
         this.num := ""
+        this.finalled := False
     }
 
     Open() {
-        if (this.openned == 0) {
+        if (this.openned == 0 && this.flagged ==0) {
             Mousemove, this.x, this.y
             Click
             this.openned := 1
