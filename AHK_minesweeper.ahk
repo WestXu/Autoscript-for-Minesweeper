@@ -80,7 +80,7 @@ for r in sixteen {
                         block.Open()
                         dealed++
                     }
-                    block.finalled := True
+                    check_block.finalled := True
                 }
 
                 ;如果没开的的数量等于数字，就把周围插上旗子
@@ -89,7 +89,7 @@ for r in sixteen {
                         block.Flag()
                         dealed++
                     }
-                    block.finalled := True
+                    check_block.finalled := True
                 }
             }    
         }
@@ -97,6 +97,7 @@ for r in sixteen {
 }
 ; msgbox, %dealed%
 } Until dealed == 0
+
 
 第二步: ;找到边缘所有block
 edge_blocks := []
