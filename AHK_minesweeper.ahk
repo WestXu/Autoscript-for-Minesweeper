@@ -23,7 +23,7 @@ bottom_y := top_y + blocksize * 16
 halfsize := blocksize // 2
 
 ;ÑÕÉ«³£Á¿
-color_to_num := {0xC0C0C0: 0, 0x0000FF: 1, 0x008000: 2, 0xFF0000: 3, 0x000080: 4, 0x800000: 5}
+color_to_num := {0xC0C0C0: 0, 0x0000FF: 1, 0x008000: 2, 0xFF0000: 3, 0x000080: 4, 0x800000: 5, 0x008080: 6, 0x000000: 7, 0x808080: 8}
 white := 0xFFFFFF
 
 
