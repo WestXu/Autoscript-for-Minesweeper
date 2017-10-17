@@ -92,7 +92,7 @@ for i, panel in possible_panels { ;对所有block出现雷的次数累加
 
 for step, marks in counts { ;如果有block在所有panel中都有雷，插旗子
     if (marks == possible_panels.Length()) {
-        edge_blocks[step].Flag()
+        step.Flag()
     }
 }
 
@@ -100,7 +100,7 @@ for step, marks in counts { ;如果有block在所有panel中都有雷，插旗子
 did_open := False
 for step, marks in counts { 
     if (marks == 0) {
-        edge_blocks[step].Open()
+        step.Open()
         did_open := True
     }
 }
@@ -114,10 +114,10 @@ if (not did_open) {
             min_marks_step := step ;找出雷出现次数最少的一个block
         }    
     } 
-    edge_blocks[min_marks_step].Open()
+    min_marks_step.Open()
 
     ; 检查有没有猜错，猜错了就结束
-    PixelGetColor, Getcolor, edge_blocks[min_marks_step].x - 6, edge_blocks[min_marks_step].y - 6, RGB
+    PixelGetColor, Getcolor, min_marks_step.x - 6, min_marks_step.y - 6, RGB
     if (Getcolor == 0xFF0000) { 
         MsgBox, 5, , Bad luck.
         IfMsgBox, Retry 
@@ -200,6 +200,14 @@ ColorToNum(color1) {
     return color_to_num[color1]
 }
 
+LengthOfList(collection) {
+    l := 0
+    for i, v in collection{
+        l++
+    }
+    return l
+}
+
 IsIn(item, collection){
     for i, v in collection{
         if (v == item) {
@@ -251,33 +259,30 @@ PossiblePanels(blocks) {
 
             ; blocks[panel.Length()+1].MouseOn()
             ; msgbox, 走到这里了
-            for i, block in SurrondingBlocks(blocks[panel.Length()+1]) { ;走到当前这一块，它的周围8个遍历
+            now_step := blocks[LengthOfList(panel)+1]
+            for i, block in SurrondingBlocks(now_step) { ;走到当前这一块，它的周围8个遍历
                 if (block.num > 0) { ;有数字的block
 
-                    ; 计算未点开的block的数量和旗子的数量
+                    ; 计算未点开的block的数量、旗子的数量、标记过的1或0的数量
                     close_block_num := 0
                     flags := 0
+                    marked_zeros := 0 
+                    marked_ones := 0
                     for i, block2 in SurrondingBlocks(block) { ;数字周围的block
                         if (block2.openned == 0) {
                             close_block_num++
                         }
                         if (block2.flagged == 1)
                             flags++
-                    }
-                    
-                    ; 计算已经标记了1和0的数量
-                    marked_zeros := 0 
-                    marked_ones := 0
-                    for block3, mark in panel {
-                        if (IsIn(blocks[block3], SurrondingBlocks(block))) {
-                            if (mark == 1) {
+                        if (panel.HasKey(block2)) { ; 如果数字周围的block在之前走过的路径中
+                            if (panel[block2] == 1) {
                                 marked_ones++
-                            } else {
+                            }
+                            if (panel[block2] == 0) {
                                 marked_zeros++
                             }
                         }
                     }
-                    
                     if (block.num == close_block_num - marked_zeros) { ;满足条件一，不可以无雷
                         reject0 := True                    
                     }
@@ -293,14 +298,14 @@ PossiblePanels(blocks) {
                 ;blocks[panel.Length()+1].MouseOn()
                 ;msgbox, 不拒绝0
                 panel0 := panel.Clone()
-                panel0.Insert(0)
+                panel0.Insert(now_step, 0)
                 new_possible_panels.Insert(panel0)
             }
             if (not reject1) {
                 ;blocks[panel.Length()+1].MouseOn()
                 ;msgbox, 不拒绝1
                 panel1 := panel.Clone()
-                panel1.Insert(1)
+                panel1.Insert(now_step, 1)
                 new_possible_panels.Insert(panel1) 
             }
             ; if (reject0 && reject1) {
@@ -308,7 +313,7 @@ PossiblePanels(blocks) {
             ; }
         }
         ;PrintListOfList(new_possible_panels)
-        ToolTip, % "Step: " new_possible_panels[1].Length() " / " edge_blocks.Length() "`rPossible panels found: " new_possible_panels.Length()
+        ToolTip, % "Step: " LengthOfList(new_possible_panels[1]) " / " edge_blocks.Length() "`rPossible panels found: " new_possible_panels.Length()
         ; progressee := new_possible_panels[1].Length() / edge_blocks.Length() * 100
         ; textee := "Steps: " new_possible_panels[1].Length() " / " edge_blocks.Length() "`rPossible panels found: " new_possible_panels.Length()
         ; Progress, %progressee%, %textee%, ,Processing...
