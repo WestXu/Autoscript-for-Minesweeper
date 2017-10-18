@@ -2,14 +2,11 @@ F10::
 
 ;===============================常量========================================
 
-;系统延时
+;延时常量
 delayer := 50
 
 ;鼠标速度
 SetDefaultMouseSpeed, 0
-
-;提示窗口
-; CoordMode, ToolTip, Screen
 
 ;激活扫雷窗口
 WinWait, 扫雷
@@ -45,28 +42,29 @@ for r in sixteen {
     }
 }
 
+
 第一步: ;点开中间的一个
 blocktable[1, 1].Open()
 
 
-New: 
+第二步: ;遍历单数字推断，直到无法插旗无法点开 
 loop {
 dealed := 0
 for r in sixteen {
     for c in thirty {
         check_block := blocktable[r, c]
         if (check_block.num > 0) {
-            if (not check_block.finalled) { 
+            if (!check_block.finalled) { 
 
                 ; 数数数字周围旗子的数量和没开的block的数量
                 flags := 0 
                 close_block_num := 0
                 close_blocks := []
                 for i, block in SurrondingBlocks(check_block) {
-                    if (block.openned == 0) {
+                    if (!block.openned) {
                         close_block_num++
                         close_blocks.Insert(block)
-                        if (block.flagged == 1) {
+                        if (block.flagged) {
                             flags++
                         }
                     }
@@ -99,14 +97,14 @@ for r in sixteen {
 } Until dealed == 0
 
 
-第二步: ;找到边缘所有block
+第三步: ;找到边缘所有block
 edge_blocks := []
 for r in sixteen {
     for c in thirty {  
-        if (blocktable[r, c].num > 0 && (not blocktable[r, c].finalled)) {
+        if (blocktable[r, c].num > 0 && !blocktable[r, c].finalled) {
             for i, block in SurrondingBlocks(blocktable[r, c]) {
-                if (block.openned == 0 && block.flagged == 0) {
-                    if (not IsIn(block, edge_blocks)) {
+                if (!block.openned && !block.flagged) {
+                    if (!IsIn(block, edge_blocks)) {
                         edge_blocks.Insert(block)
                     }
                 }
@@ -120,11 +118,10 @@ if (edge_blocks == []) {
     Reload
 }
 
-第三步: ;概率最小的点开
 
+第四步: ;概率最小的点开
 possible_panels := PossiblePanels(edge_blocks)
 ToolTip
-; progress, off
 
 ;用于累加每个block出现雷的次数
 counts := [] 
@@ -156,7 +153,7 @@ for step, marks in counts {
 }
 
 ;如果没有一个绝对安全的block可以点开，那就点开概率最小的
-if ((not did_open) && (not did_flag)) { 
+if (!did_open && !did_flag) { 
     ; msgbox, % "边缘长度：" edge_blocks.length() "`r插旗子：" did_flag "`r打开过：" did_open "`r开始蒙"
     min_marks := possible_panels.Length() + 1 ;初始值设置为比最大可能值大1
     for step, marks in counts {
@@ -181,7 +178,7 @@ if ((not did_open) && (not did_flag)) {
     }
 }
 
-Goto, New
+Goto, 第二步
 
 ;===============================子过程======================================
 
@@ -205,24 +202,23 @@ PrintListOfList(list2) {
     ToolTip, %l%, 1300, 0, 2
 }
 
-
 class Block {
     __New(r, c) {
         this.r := r
         this.c := c
         this.x := xOfc(c)
         this.y := yOfr(r)
-        this.flagged := 0
-        this.openned := 0
+        this.flagged := False
+        this.openned := False
         this.num := ""
         this.finalled := False
     }
 
     Open() {
-        if (this.openned == 0 && this.flagged ==0) {
+        if (!this.openned && !this.flagged) {
             Mousemove, this.x, this.y
             Click
-            this.openned := 1
+            this.openned := True
             if (this.num == "") { ;没有检查过数字的话就检查一下
                 PixelGetColor, Getcolor, this.x, this.y, RGB
                 this.num := ColorToNum(Getcolor)
@@ -236,10 +232,10 @@ class Block {
     }
 
     Flag() {
-        if (this.flagged == 0) {
+        if (!this.flagged) {
             Mousemove, this.x, this.y
             Click Right
-            this.flagged := 1
+            this.flagged := True
         }
     }
 
@@ -280,16 +276,15 @@ yOfr(r) { ; 根据行找y坐标
     return (r - 1) * blocksize + firstblock_y
 }
 
-
 SurrondingBlocks(block) {
     global blocktable
     surrounding_blocks := []
     for i, small_r in [-1, 0, 1] {
         for i, small_c in [-1, 0, 1] {
-            if (not (small_r == 0 and small_c == 0)) {
+            if (!(small_r == 0 && small_c == 0)) {
                 real_r := block.r + small_r
                 real_c := block.c + small_c
-                if (real_r > 0 and real_r <= 16 and real_c >0 and real_c <= 30) {
+                if (real_r > 0 && real_r <= 16 && real_c >0 && real_c <= 30) {
                         surrounding_blocks.Insert(blocktable[real_r, real_c])
                 }
             }
@@ -310,11 +305,9 @@ PossiblePanels(blocks) {
             reject0 := False ; 初始化两个拒绝状态
             reject1 := False
 
-            ; blocks[panel.Length()+1].MouseOn()
-            ; msgbox, 走到这里了
             now_step := blocks[LengthOfList(panel)+1]
             for i, block in SurrondingBlocks(now_step) { ;走到当前这一块，它的周围8个遍历
-                if (block.num > 0) { ;有数字的block(这里想加上 && (not block.finalled)， 但不知为何不行)
+                if (block.num > 0) { ;有数字的block
 
                     ; 计算未点开的block的数量、旗子的数量、标记过的1或0的数量
                     close_block_num := 0
@@ -322,10 +315,10 @@ PossiblePanels(blocks) {
                     marked_zeros := 0 
                     marked_ones := 0
                     for i, block2 in SurrondingBlocks(block) { ;数字周围的block
-                        if (block2.openned == 0) {
+                        if (!block2.openned) {
                             close_block_num++
                         }
-                        if (block2.flagged == 1)
+                        if (block2.flagged)
                             flags++
                         if (panel.HasKey(block2)) { ; 如果数字周围的block在之前走过的路径中
                             if (panel[block2] == 1) {
@@ -341,35 +334,24 @@ PossiblePanels(blocks) {
                     }
                     if (block.num == marked_ones + flags) { ;满足条件二，不可以有雷
                         reject1 := True 
-                        ; block.MouseOn()
-                        ; msgbox, % "路径" n " 正在拒绝1`r" block.num " == " marked_ones
                     }
                 }
             }
 
-            if (not reject0) {
-                ;blocks[panel.Length()+1].MouseOn()
-                ;msgbox, 不拒绝0
+            if (!reject0) {
                 panel0 := panel.Clone()
                 panel0.Insert(now_step, 0)
                 new_possible_panels.Insert(panel0)
             }
-            if (not reject1) {
-                ;blocks[panel.Length()+1].MouseOn()
-                ;msgbox, 不拒绝1
+            if (!reject1) {
                 panel1 := panel.Clone()
                 panel1.Insert(now_step, 1)
                 new_possible_panels.Insert(panel1) 
             }
-            ; if (reject0 && reject1) {
-            ;     msgbox, % "路径" n " 两个都被拒绝了"
-            ; }
         }
+
         ;PrintListOfList(new_possible_panels)
         ToolTip, % "Step: " LengthOfList(new_possible_panels[1]) " / " edge_blocks.Length() "`rPossible panels found: " new_possible_panels.Length()
-        ; progressee := new_possible_panels[1].Length() / edge_blocks.Length() * 100
-        ; textee := "Steps: " new_possible_panels[1].Length() " / " edge_blocks.Length() "`rPossible panels found: " new_possible_panels.Length()
-        ; Progress, %progressee%, %textee%, ,Processing...
 
         return new_possible_panels
     }
@@ -378,7 +360,7 @@ PossiblePanels(blocks) {
 
 ;=================================END=======================================
 
-return
+Return
 
-F11:: pause
+F11:: Pause
 F12:: Reload 
