@@ -7,6 +7,7 @@ delayer := 50
 
 ;鼠标速度
 SetDefaultMouseSpeed, 0
+SetMouseDelay, 2 ; 设为小于2时会出现卡死bug，尚未解决
 
 ;激活扫雷窗口
 WinWait, 扫雷
@@ -44,56 +45,56 @@ for r in sixteen {
 
 
 第一步: ;点开中间的一个
-blocktable[1, 1].Open()
+blocktable[16, 30].Open()
 
 
 第二步: ;遍历单数字推断，直到无法插旗无法点开 
 loop {
-dealed := 0
-for r in sixteen {
-    for c in thirty {
-        check_block := blocktable[r, c]
-        if (check_block.num > 0) {
-            if (!check_block.finalled) { 
+    dealed := 0
+    for r in sixteen {
+        for c in thirty {
+            check_block := blocktable[r, c]
+            if (check_block.num > 0) {
+                if (!check_block.finalled) { 
 
-                ; 数数数字周围旗子的数量和没开的block的数量
-                flags := 0 
-                close_block_num := 0
-                close_blocks := []
-                for i, block in SurrondingBlocks(check_block) {
-                    if (!block.openned) {
-                        close_block_num++
-                        close_blocks.Insert(block)
-                        if (block.flagged) {
-                            flags++
+                    ; 数数数字周围旗子的数量和没开的block的数量
+                    flags := 0 
+                    close_block_num := 0
+                    close_blocks := []
+                    for i, block in SurroundingBlocks(check_block) {
+                        if (!block.openned) {
+                            close_block_num++
+                            close_blocks.Insert(block)
+                            if (block.flagged) {
+                                flags++
+                            }
                         }
                     }
-                }
-                ; msgbox, % "旗子数：" flags "`r关闭的格子数：" close_block_num "`r数字：" check_block.num
+                    ; msgbox, % "旗子数：" flags "`r关闭的格子数：" close_block_num "`r数字：" check_block.num
 
 
-                ;如果旗子数量等于数字，打开数字周围
-                if (check_block.num == flags && flags < close_block_num) {
-                    for i, block in close_blocks {
-                        block.Open()
-                        dealed++
+                    ;如果旗子数量等于数字，打开数字周围
+                    if (check_block.num == flags && flags < close_block_num) {
+                        for i, block in close_blocks {
+                            block.Open()
+                            dealed++
+                        }
+                        check_block.finalled := True
                     }
-                    check_block.finalled := True
-                }
 
-                ;如果没开的的数量等于数字，就把周围插上旗子
-                if (check_block.num == close_block_num && flags < close_block_num) {
-                    for i, block in close_blocks {
-                        block.Flag()
-                        dealed++
+                    ;如果没开的的数量等于数字，就把周围插上旗子
+                    if (check_block.num == close_block_num && flags < close_block_num) {
+                        for i, block in close_blocks {
+                            block.Flag()
+                            dealed++
+                        }
+                        check_block.finalled := True
                     }
-                    check_block.finalled := True
-                }
-            }    
+                }    
+            }
         }
     }
-}
-; msgbox, %dealed%
+    ; msgbox, %dealed%
 } Until dealed == 0
 
 
@@ -102,7 +103,7 @@ edge_blocks := []
 for r in sixteen {
     for c in thirty {  
         if (blocktable[r, c].num > 0 && !blocktable[r, c].finalled) {
-            for i, block in SurrondingBlocks(blocktable[r, c]) {
+            for i, block in SurroundingBlocks(blocktable[r, c]) {
                 if (!block.openned && !block.flagged) {
                     if (!IsIn(block, edge_blocks)) {
                         edge_blocks.Insert(block)
@@ -157,7 +158,7 @@ if (!did_open && !did_flag) {
     ; msgbox, % "边缘长度：" edge_blocks.length() "`r插旗子：" did_flag "`r打开过：" did_open "`r开始蒙"
     min_marks := possible_panels.Length() + 1 ;初始值设置为比最大可能值大1
     for step, marks in counts {
-    if (marks < min_marks) {
+        if (marks <= min_marks) {
             min_marks := marks 
             min_marks_step := step ;找出雷出现次数最少的一个block
         }    
@@ -167,7 +168,6 @@ if (!did_open && !did_flag) {
     ; 检查有没有猜错，猜错了就结束
     PixelGetColor, Getcolor, min_marks_step.x - 6, min_marks_step.y - 6, RGB
     if (Getcolor == 0xFF0000) { 
-        length := edge_blocks.length()
         MsgBox, 5, , Bad luck. 
         IfMsgBox, Retry 
         {
@@ -214,17 +214,19 @@ class Block {
         this.finalled := False
     }
 
-    Open() {
+    Open(really_oppend := False) {
         if (!this.openned && !this.flagged) {
-            Mousemove, this.x, this.y
-            Click
+            if (!really_oppend) {
+                Mousemove, this.x, this.y
+                Click
+            }
             this.openned := True
             if (this.num == "") { ;没有检查过数字的话就检查一下
                 PixelGetColor, Getcolor, this.x, this.y, RGB
                 this.num := ColorToNum(Getcolor)
                 if (this.num == 0) { ;如果点开发现是空的，就会打开四周
-                    for i, block in SurrondingBlocks(this) {
-                        block.Open()
+                    for i, block in SurroundingBlocks(this) {
+                        block.Open(True)
                     }
                 }
             }
@@ -276,7 +278,7 @@ yOfr(r) { ; 根据行找y坐标
     return (r - 1) * blocksize + firstblock_y
 }
 
-SurrondingBlocks(block) {
+SurroundingBlocks(block) {
     global blocktable
     surrounding_blocks := []
     for i, small_r in [-1, 0, 1] {
@@ -306,33 +308,33 @@ PossiblePanels(blocks) {
             reject1 := False
 
             now_step := blocks[LengthOfList(panel)+1]
-            for i, block in SurrondingBlocks(now_step) { ;走到当前这一块，它的周围8个遍历
-                if (block.num > 0) { ;有数字的block
+            for i, num_block in SurroundingBlocks(now_step) { ;走到当前这一块，它的周围8个遍历
+                if (num_block.num > 0) { ;有数字的block
 
                     ; 计算未点开的block的数量、旗子的数量、标记过的1或0的数量
                     close_block_num := 0
                     flags := 0
                     marked_zeros := 0 
                     marked_ones := 0
-                    for i, block2 in SurrondingBlocks(block) { ;数字周围的block
-                        if (!block2.openned) {
+                    for i, block in SurroundingBlocks(num_block) { ;数字周围的block
+                        if (!block.openned) {
                             close_block_num++
                         }
-                        if (block2.flagged)
+                        if (block.flagged)
                             flags++
-                        if (panel.HasKey(block2)) { ; 如果数字周围的block在之前走过的路径中
-                            if (panel[block2] == 1) {
+                        if (panel.HasKey(block)) { ; 如果数字周围的block在之前走过的路径中
+                            if (panel[block] == 1) {
                                 marked_ones++
                             }
-                            if (panel[block2] == 0) {
+                            if (panel[block] == 0) {
                                 marked_zeros++
                             }
                         }
                     }
-                    if (block.num == close_block_num - marked_zeros) { ;满足条件一，不可以无雷
+                    if (num_block.num == close_block_num - marked_zeros) { ;满足条件一，不可以无雷
                         reject0 := True                    
                     }
-                    if (block.num == marked_ones + flags) { ;满足条件二，不可以有雷
+                    if (num_block.num == marked_ones + flags) { ;满足条件二，不可以有雷
                         reject1 := True 
                     }
                 }
