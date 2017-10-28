@@ -8,4 +8,4 @@ An Autohotkey script to solve Minesweeper automatically.
 4. Hit F10 to start the script (F11 to pause and F12 to stop and reload).
 
 ## Demo
-![Image](https://raw.githubusercontent.com/WestXu/Autoscript-for-Minesweeper/master/record.gif)
+![Image](https://raw.githubusercontent.com/WestXu/Autoscript-for-Minesweeper/master/demo.gif)
