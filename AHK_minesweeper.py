@@ -4,7 +4,7 @@ import pyautogui as ahk
 #======================================Constants==========================
 
 
-ahk.PAUSE = 0
+ahk.PAUSE = 0.005
 
 left_x, top_y, width, height = ahk.locateOnScreen('initial_screenshot.png')
 
@@ -111,7 +111,7 @@ class Block(object):
                 self.num = color_to_num[ahk.pixel(self.x, self.y)]
                 if self.num == 0:
                     for block in SurroundingBlocks(self):
-                        block.Open(really_oppend=True) # FIXME: 这里改成False就不会因为PAUSE太低操作太快出现bug
+                        block.Open(really_oppend=True)
 
     def Flag(self):
         if not self.flagged:
