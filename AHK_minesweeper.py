@@ -1,4 +1,6 @@
 import pyautogui as ahk
+from subprocess import call
+import time
 
 
 #======================================Constants==========================
@@ -219,7 +221,15 @@ while True:
                 min_marks_step = step
         min_marks_step.Open()
 
-        # 检查有没有猜错，猜错了就结束
+        # 检查有没有猜错，猜错了就重新开始
         if ahk.pixel(min_marks_step.x - 6, min_marks_step.y - 6) == (255, 0, 0):
             print('Bad luck. ')
-            exit()
+            time.sleep(1)
+            print('Trying a again in 3s')
+            time.sleep(1)
+            print('Trying a again in 2s')
+            time.sleep(1)
+            print('Trying a again in 1s')
+            time.sleep(1)
+            ahk.doubleClick(left_x + width / 2, top_y - 30)  # 点笑脸重新开始
+            call("python AHK_minesweeper.py")
