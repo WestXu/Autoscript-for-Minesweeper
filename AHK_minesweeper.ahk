@@ -1,17 +1,17 @@
 F10::
 
-;===============================³£Á¿========================================
+;===============================å¸¸é‡========================================
 
-;ÑÓÊ±³£Á¿
+;å»¶æ—¶å¸¸é‡
 delayer := 50
 
-;Êó±êËÙ¶È
+;é¼ æ ‡é€Ÿåº¦
 SetDefaultMouseSpeed, 0
-SetMouseDelay, 2 ; ÉèÎªĞ¡ÓÚ2Ê±»á³öÏÖ¿¨ËÀbug£¬ÉĞÎ´½â¾ö
+SetMouseDelay, 2 ; è®¾ä¸ºå°äº2æ—¶ä¼šå‡ºç°å¡æ­»bugï¼Œå°šæœªè§£å†³
 
-;¼¤»îÉ¨À×´°¿Ú
-WinWait, É¨À×
-WinActivate, É¨À×
+;æ¿€æ´»æ‰«é›·çª—å£
+WinWait, æ‰«é›·
+WinActivate, æ‰«é›·
 
 blocksize := 16
 left_x := 16
@@ -20,14 +20,14 @@ right_x := left_x + blocksize * 30
 bottom_y := top_y + blocksize * 16
 halfsize := blocksize // 2
 
-;ÑÕÉ«³£Á¿
+;é¢œè‰²å¸¸é‡
 color_to_num := {0xC0C0C0: 0, 0x0000FF: 1, 0x008000: 2, 0xFF0000: 3, 0x000080: 4, 0x800000: 5, 0x008080: 6, 0x000000: 7, 0x808080: 8}
 
-;ÓÃÓÚÑ­»·µÄÊı×é
+;ç”¨äºå¾ªç¯çš„æ•°ç»„
 thirty := [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30]
 sixteen := [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
 
-;µÚÒ»¸ö·½¿éµÄ×ø±ê
+;ç¬¬ä¸€ä¸ªæ–¹å—çš„åæ ‡
 firstblock_x := left_x + halfsize
 firstblock_y := top_y + halfsize
 
@@ -35,7 +35,7 @@ firstblock_y := top_y + halfsize
 ;=================================END=======================================
 
 
-³õÊ¼»¯Ãæ°å: 
+åˆå§‹åŒ–é¢æ¿: 
 blocktable := {}
 for r in sixteen {
     for c in thirty {    
@@ -44,11 +44,11 @@ for r in sixteen {
 }
 
 
-µÚÒ»²½: ;µã¿ªÖĞ¼äµÄÒ»¸ö
+ç¬¬ä¸€æ­¥: ;ç‚¹å¼€ä¸­é—´çš„ä¸€ä¸ª
 blocktable[16, 30].Open()
 
 
-µÚ¶ş²½: ;±éÀúµ¥Êı×ÖÍÆ¶Ï£¬Ö±µ½ÎŞ·¨²åÆìÎŞ·¨µã¿ª 
+ç¬¬äºŒæ­¥: ;éå†å•æ•°å­—æ¨æ–­ï¼Œç›´åˆ°æ— æ³•æ’æ——æ— æ³•ç‚¹å¼€ 
 loop {
     dealed := 0
     for r in sixteen {
@@ -57,7 +57,7 @@ loop {
             if (check_block.num > 0) {
                 if (!check_block.finalled) { 
 
-                    ; ÊıÊıÊı×ÖÖÜÎ§Æì×ÓµÄÊıÁ¿ºÍÃ»¿ªµÄblockµÄÊıÁ¿
+                    ; æ•°æ•°æ•°å­—å‘¨å›´æ——å­çš„æ•°é‡å’Œæ²¡å¼€çš„blockçš„æ•°é‡
                     flags := 0 
                     close_block_num := 0
                     close_blocks := []
@@ -70,10 +70,10 @@ loop {
                             }
                         }
                     }
-                    ; msgbox, % "Æì×ÓÊı£º" flags "`r¹Ø±ÕµÄ¸ñ×ÓÊı£º" close_block_num "`rÊı×Ö£º" check_block.num
+                    ; msgbox, % "æ——å­æ•°ï¼š" flags "`rå…³é—­çš„æ ¼å­æ•°ï¼š" close_block_num "`ræ•°å­—ï¼š" check_block.num
 
 
-                    ;Èç¹ûÆì×ÓÊıÁ¿µÈÓÚÊı×Ö£¬´ò¿ªÊı×ÖÖÜÎ§
+                    ;å¦‚æœæ——å­æ•°é‡ç­‰äºæ•°å­—ï¼Œæ‰“å¼€æ•°å­—å‘¨å›´
                     if (check_block.num == flags && flags < close_block_num) {
                         for i, block in close_blocks {
                             block.Open()
@@ -82,7 +82,7 @@ loop {
                         check_block.finalled := True
                     }
 
-                    ;Èç¹ûÃ»¿ªµÄµÄÊıÁ¿µÈÓÚÊı×Ö£¬¾Í°ÑÖÜÎ§²åÉÏÆì×Ó
+                    ;å¦‚æœæ²¡å¼€çš„çš„æ•°é‡ç­‰äºæ•°å­—ï¼Œå°±æŠŠå‘¨å›´æ’ä¸Šæ——å­
                     if (check_block.num == close_block_num && flags < close_block_num) {
                         for i, block in close_blocks {
                             block.Flag()
@@ -98,7 +98,7 @@ loop {
 } Until dealed == 0
 
 
-µÚÈı²½: ;ÕÒµ½±ßÔµËùÓĞblock
+ç¬¬ä¸‰æ­¥: ;æ‰¾åˆ°è¾¹ç¼˜æ‰€æœ‰block
 edge_blocks := []
 for r in sixteen {
     for c in thirty {  
@@ -114,37 +114,37 @@ for r in sixteen {
     }
 }
 
-; Ã»ÓĞÁË¾Í½áÊø
+; æ²¡æœ‰äº†å°±ç»“æŸ
 if (edge_blocks == []) {
     Reload
 }
 
 
-µÚËÄ²½: ;¸ÅÂÊ×îĞ¡µÄµã¿ª
+ç¬¬å››æ­¥: ;æ¦‚ç‡æœ€å°çš„ç‚¹å¼€
 possible_panels := PossiblePanels(edge_blocks)
 ToolTip
 
-;ÓÃÓÚÀÛ¼ÓÃ¿¸öblock³öÏÖÀ×µÄ´ÎÊı
+;ç”¨äºç´¯åŠ æ¯ä¸ªblockå‡ºç°é›·çš„æ¬¡æ•°
 counts := [] 
 for step in possible_panels[1] {
     counts[step] := 0
 }
 
-for i, panel in possible_panels { ;¶ÔËùÓĞblock³öÏÖÀ×µÄ´ÎÊıÀÛ¼Ó
+for i, panel in possible_panels { ;å¯¹æ‰€æœ‰blockå‡ºç°é›·çš„æ¬¡æ•°ç´¯åŠ 
     for step, mark in panel {
         counts[step] += mark
     }
 }
 
 did_flag := False
-for step, marks in counts { ;Èç¹ûÓĞblockÔÚËùÓĞpanelÖĞ¶¼ÓĞÀ×£¬²åÆì×Ó
+for step, marks in counts { ;å¦‚æœæœ‰blockåœ¨æ‰€æœ‰panelä¸­éƒ½æœ‰é›·ï¼Œæ’æ——å­
     if (marks == possible_panels.Length()) {
         step.Flag()
         did_flag := True
     }
 }
 
-;Èç¹ûÓĞblockÔÚËùÓĞpanelÖĞ¶¼Ã»ÓĞ³öÏÖ¹ıÀ×£¬µã¿ª
+;å¦‚æœæœ‰blockåœ¨æ‰€æœ‰panelä¸­éƒ½æ²¡æœ‰å‡ºç°è¿‡é›·ï¼Œç‚¹å¼€
 did_open := False
 for step, marks in counts { 
     if (marks == 0) {
@@ -153,34 +153,34 @@ for step, marks in counts {
     }
 }
 
-;Èç¹ûÃ»ÓĞÒ»¸ö¾ø¶Ô°²È«µÄblock¿ÉÒÔµã¿ª£¬ÄÇ¾Íµã¿ª¸ÅÂÊ×îĞ¡µÄ
+;å¦‚æœæ²¡æœ‰ä¸€ä¸ªç»å¯¹å®‰å…¨çš„blockå¯ä»¥ç‚¹å¼€ï¼Œé‚£å°±ç‚¹å¼€æ¦‚ç‡æœ€å°çš„
 if (!did_open && !did_flag) { 
-    ; msgbox, % "±ßÔµ³¤¶È£º" edge_blocks.length() "`r²åÆì×Ó£º" did_flag "`r´ò¿ª¹ı£º" did_open "`r¿ªÊ¼ÃÉ"
-    min_marks := possible_panels.Length() + 1 ;³õÊ¼ÖµÉèÖÃÎª±È×î´ó¿ÉÄÜÖµ´ó1
+    ; msgbox, % "è¾¹ç¼˜é•¿åº¦ï¼š" edge_blocks.length() "`ræ’æ——å­ï¼š" did_flag "`ræ‰“å¼€è¿‡ï¼š" did_open "`rå¼€å§‹è’™"
+    min_marks := possible_panels.Length() + 1 ;åˆå§‹å€¼è®¾ç½®ä¸ºæ¯”æœ€å¤§å¯èƒ½å€¼å¤§1
     for step, marks in counts {
         if (marks <= min_marks) {
             min_marks := marks 
-            min_marks_step := step ;ÕÒ³öÀ×³öÏÖ´ÎÊı×îÉÙµÄÒ»¸öblock
+            min_marks_step := step ;æ‰¾å‡ºé›·å‡ºç°æ¬¡æ•°æœ€å°‘çš„ä¸€ä¸ªblock
         }    
     } 
     min_marks_step.Open()
 
-    ; ¼ì²éÓĞÃ»ÓĞ²Â´í£¬²Â´íÁË¾Í½áÊø
+    ; æ£€æŸ¥æœ‰æ²¡æœ‰çŒœé”™ï¼ŒçŒœé”™äº†å°±ç»“æŸ
     PixelGetColor, Getcolor, min_marks_step.x - 6, min_marks_step.y - 6, RGB
     if (Getcolor == 0xFF0000) { 
         MsgBox, 5, , Bad luck. 
         IfMsgBox, Retry 
         {
-            Click 257, 75 ; µãĞ¦Á³ÖØĞÂ¿ªÊ¼
-            Goto, ³õÊ¼»¯Ãæ°å
+            Click 257, 75 ; ç‚¹ç¬‘è„¸é‡æ–°å¼€å§‹
+            Goto, åˆå§‹åŒ–é¢æ¿
         }
         Reload
     }
 }
 
-Goto, µÚ¶ş²½
+Goto, ç¬¬äºŒæ­¥
 
-;===============================×Ó¹ı³Ì======================================
+;===============================å­è¿‡ç¨‹======================================
 
 PrintList(list1) {
     s := ""
@@ -221,10 +221,10 @@ class Block {
                 Click
             }
             this.openned := True
-            if (this.num == "") { ;Ã»ÓĞ¼ì²é¹ıÊı×ÖµÄ»°¾Í¼ì²éÒ»ÏÂ
+            if (this.num == "") { ;æ²¡æœ‰æ£€æŸ¥è¿‡æ•°å­—çš„è¯å°±æ£€æŸ¥ä¸€ä¸‹
                 PixelGetColor, Getcolor, this.x, this.y, RGB
                 this.num := ColorToNum(Getcolor)
-                if (this.num == 0) { ;Èç¹ûµã¿ª·¢ÏÖÊÇ¿ÕµÄ£¬¾Í»á´ò¿ªËÄÖÜ
+                if (this.num == 0) { ;å¦‚æœç‚¹å¼€å‘ç°æ˜¯ç©ºçš„ï¼Œå°±ä¼šæ‰“å¼€å››å‘¨
                     for i, block in SurroundingBlocks(this) {
                         block.Open(True)
                     }
@@ -268,12 +268,12 @@ IsIn(item, collection){
     return 0
 }
 
-xOfc(c) { ; ¸ù¾İÁĞÕÒx×ø±ê
+xOfc(c) { ; æ ¹æ®åˆ—æ‰¾xåæ ‡
     global
     return (c - 1) * blocksize + firstblock_x
 }
 
-yOfr(r) { ; ¸ù¾İĞĞÕÒy×ø±ê
+yOfr(r) { ; æ ¹æ®è¡Œæ‰¾yåæ ‡
     global
     return (r - 1) * blocksize + firstblock_y
 }
@@ -304,25 +304,25 @@ PossiblePanels(blocks) {
         less_blocks := blocks.Clone()
         less_blocks.Remove()
         for n, panel in PossiblePanels(less_blocks) {
-            reject0 := False ; ³õÊ¼»¯Á½¸ö¾Ü¾ø×´Ì¬
+            reject0 := False ; åˆå§‹åŒ–ä¸¤ä¸ªæ‹’ç»çŠ¶æ€
             reject1 := False
 
             now_step := blocks[LengthOfList(panel)+1]
-            for i, num_block in SurroundingBlocks(now_step) { ;×ßµ½µ±Ç°ÕâÒ»¿é£¬ËüµÄÖÜÎ§8¸ö±éÀú
-                if (num_block.num > 0) { ;ÓĞÊı×ÖµÄblock
+            for i, num_block in SurroundingBlocks(now_step) { ;èµ°åˆ°å½“å‰è¿™ä¸€å—ï¼Œå®ƒçš„å‘¨å›´8ä¸ªéå†
+                if (num_block.num > 0) { ;æœ‰æ•°å­—çš„block
 
-                    ; ¼ÆËãÎ´µã¿ªµÄblockµÄÊıÁ¿¡¢Æì×ÓµÄÊıÁ¿¡¢±ê¼Ç¹ıµÄ1»ò0µÄÊıÁ¿
+                    ; è®¡ç®—æœªç‚¹å¼€çš„blockçš„æ•°é‡ã€æ——å­çš„æ•°é‡ã€æ ‡è®°è¿‡çš„1æˆ–0çš„æ•°é‡
                     close_block_num := 0
                     flags := 0
                     marked_zeros := 0 
                     marked_ones := 0
-                    for i, block in SurroundingBlocks(num_block) { ;Êı×ÖÖÜÎ§µÄblock
+                    for i, block in SurroundingBlocks(num_block) { ;æ•°å­—å‘¨å›´çš„block
                         if (!block.openned) {
                             close_block_num++
                         }
                         if (block.flagged)
                             flags++
-                        if (panel.HasKey(block)) { ; Èç¹ûÊı×ÖÖÜÎ§µÄblockÔÚÖ®Ç°×ß¹ıµÄÂ·¾¶ÖĞ
+                        if (panel.HasKey(block)) { ; å¦‚æœæ•°å­—å‘¨å›´çš„blockåœ¨ä¹‹å‰èµ°è¿‡çš„è·¯å¾„ä¸­
                             if (panel[block] == 1) {
                                 marked_ones++
                             }
@@ -331,10 +331,10 @@ PossiblePanels(blocks) {
                             }
                         }
                     }
-                    if (num_block.num == close_block_num - marked_zeros) { ;Âú×ãÌõ¼şÒ»£¬²»¿ÉÒÔÎŞÀ×
+                    if (num_block.num == close_block_num - marked_zeros) { ;æ»¡è¶³æ¡ä»¶ä¸€ï¼Œä¸å¯ä»¥æ— é›·
                         reject0 := True                    
                     }
-                    if (num_block.num == marked_ones + flags) { ;Âú×ãÌõ¼ş¶ş£¬²»¿ÉÒÔÓĞÀ×
+                    if (num_block.num == marked_ones + flags) { ;æ»¡è¶³æ¡ä»¶äºŒï¼Œä¸å¯ä»¥æœ‰é›·
                         reject1 := True 
                     }
                 }
