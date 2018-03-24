@@ -233,3 +233,4 @@ while True:
             time.sleep(1)
             ahk.doubleClick(left_x + width / 2, top_y - 30)  # 点笑脸重新开始
             call("python AHK_minesweeper.py")
+            break
