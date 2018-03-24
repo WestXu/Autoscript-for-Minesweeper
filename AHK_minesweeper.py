@@ -139,7 +139,7 @@ def Play():
 
     # 第一步：点开中间的一个
     ahk.click(left_x - 5, top_y - 5)
-    blocktable[15][29].Open()
+    blocktable[7][14].Open()
 
 
     # 第二步：遍历单数字推断，直到无法插旗无法点开
