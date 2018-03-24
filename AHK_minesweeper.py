@@ -7,7 +7,11 @@ import time
 
 ahk.PAUSE = 0.005
 
-left_x, top_y, width, height = (int(_) for _ in ahk.locateOnScreen('initial_screenshot.png'))
+try:
+    left_x, top_y, width, height = (int(_) for _ in ahk.locateOnScreen('initial_screenshot.png'))
+except:
+    print("Make sure winmine.exe is running and its window is completely shown on the screen. ")
+    exit()
 
 blocksize = 16
 halfsize = blocksize // 2
