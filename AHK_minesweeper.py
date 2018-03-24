@@ -1,5 +1,4 @@
 import pyautogui as ahk
-from subprocess import call
 import time
 
 
@@ -127,110 +126,113 @@ class Block(object):
 #======================================START==============================
 
 
-
-# 初始化面板
-blocktable = []
-for r in range(16):
-    blockrow = []
-    for c in range(30):
-        blockrow.append(Block(r, c))
-    blocktable.append(blockrow)
-
-
-# 第一步：点开中间的一个
-ahk.click(left_x - 5, top_y - 5)
-blocktable[15][29].Open()
+def Play():
+    # 初始化面板
+    global blocktable, edge_blocks
+    blocktable = []
+    for r in range(16):
+        blockrow = []
+        for c in range(30):
+            blockrow.append(Block(r, c))
+        blocktable.append(blockrow)
 
 
-# 第二步：遍历单数字推断，直到无法插旗无法点开
-while True:
-    dealed = 1
-    while dealed > 0:
-        dealed = 0
+    # 第一步：点开中间的一个
+    ahk.click(left_x - 5, top_y - 5)
+    blocktable[15][29].Open()
+
+
+    # 第二步：遍历单数字推断，直到无法插旗无法点开
+    while True:
+        dealed = 1
+        while dealed > 0:
+            dealed = 0
+            for r in range(16):
+                for c in range(30):
+                    check_block = blocktable[r][c]
+                    if (not check_block.num is None) and check_block.num > 0:
+                        if not check_block.finalled:
+
+                            flags = 0
+                            close_block_num = 0
+                            close_blocks = []
+                            for block in SurroundingBlocks(check_block):
+                                if not block.openned:
+                                    close_block_num += 1
+                                    close_blocks.append(block)
+                                    if block.flagged:
+                                        flags += 1
+
+                            if check_block.num == flags and flags < close_block_num:
+                                for block in close_blocks:
+                                    block.Open()
+                                    dealed += 1
+                                check_block.finalled = True
+
+                            if check_block.num == close_block_num and flags < close_block_num:
+                                for block in close_blocks:
+                                    block.Flag()
+                                    dealed += 1
+                                check_block.finalled = True
+
+        # 第三步：找到边缘所有block
+        edge_blocks = []
         for r in range(16):
             for c in range(30):
-                check_block = blocktable[r][c]
-                if (not check_block.num is None) and check_block.num > 0:
-                    if not check_block.finalled:
+                if (not blocktable[r][c].num is None) and blocktable[r][c].num > 0 and not blocktable[r][c].finalled:
+                    for block in SurroundingBlocks(blocktable[r][c]):
+                        if (not block.openned) and (not block.flagged):
+                            if not block in edge_blocks:
+                                edge_blocks.append(block)
 
-                        flags = 0
-                        close_block_num = 0
-                        close_blocks = []
-                        for block in SurroundingBlocks(check_block):
-                            if not block.openned:
-                                close_block_num += 1
-                                close_blocks.append(block)
-                                if block.flagged:
-                                    flags += 1
+        # 没有了就结束
+        if edge_blocks == []:
+            exit()
 
-                        if check_block.num == flags and flags < close_block_num:
-                            for block in close_blocks:
-                                block.Open()
-                                dealed += 1
-                            check_block.finalled = True
+        # 第四步：概率最小的点开
+        possible_panels = PossiblePanels(edge_blocks)
 
-                        if check_block.num == close_block_num and flags < close_block_num:
-                            for block in close_blocks:
-                                block.Flag()
-                                dealed += 1
-                            check_block.finalled = True
+        # 用于累加每个block出现雷的次数
+        counts = {}
+        for step in possible_panels[0]:
+            counts[step] = 0
 
-    # 第三步：找到边缘所有block
-    edge_blocks = []
-    for r in range(16):
-        for c in range(30):
-            if (not blocktable[r][c].num is None) and blocktable[r][c].num > 0 and not blocktable[r][c].finalled:
-                for block in SurroundingBlocks(blocktable[r][c]):
-                    if (not block.openned) and (not block.flagged):
-                        if not block in edge_blocks:
-                            edge_blocks.append(block)
+        for panel in possible_panels:
+            for step in panel:
+                counts[step] += panel[step]
 
-    # 没有了就结束
-    if edge_blocks == []:
-        exit()
-
-    # 第四步：概率最小的点开
-    possible_panels = PossiblePanels(edge_blocks)
-
-    # 用于累加每个block出现雷的次数
-    counts = {}
-    for step in possible_panels[0]:
-        counts[step] = 0
-
-    for panel in possible_panels:
-        for step in panel:
-            counts[step] += panel[step]
-
-    did_flag = False
-    for step in counts:
-        if counts[step] == len(possible_panels):
-            step.Flag()
-            did_flag = True
-
-    did_open = False
-    for step in counts:
-        if counts[step] == 0:
-            step.Open()
-            did_open = True
-
-    if (not did_open) and (not did_flag):
-        min_marks = len(possible_panels) + 1
+        did_flag = False
         for step in counts:
-            if counts[step] <= min_marks:
-                min_marks = counts[step]
-                min_marks_step = step
-        min_marks_step.Open()
+            if counts[step] == len(possible_panels):
+                step.Flag()
+                did_flag = True
 
-        # 检查有没有猜错，猜错了就重新开始
-        if ahk.pixel(min_marks_step.x - 6, min_marks_step.y - 6) == (255, 0, 0):
-            print('Bad luck. ')
-            time.sleep(1)
-            print('Trying a again in 3s')
-            time.sleep(1)
-            print('Trying a again in 2s')
-            time.sleep(1)
-            print('Trying a again in 1s')
-            time.sleep(1)
-            ahk.doubleClick(left_x + width / 2, top_y - 30)  # 点笑脸重新开始
-            call("python AHK_minesweeper.py")
-            break
+        did_open = False
+        for step in counts:
+            if counts[step] == 0:
+                step.Open()
+                did_open = True
+
+        if (not did_open) and (not did_flag):
+            min_marks = len(possible_panels) + 1
+            for step in counts:
+                if counts[step] <= min_marks:
+                    min_marks = counts[step]
+                    min_marks_step = step
+            min_marks_step.Open()
+
+            # 检查有没有猜错，猜错了就重新开始
+            if ahk.pixel(min_marks_step.x - 6, min_marks_step.y - 6) == (255, 0, 0):
+                print('Bad luck. ')
+                time.sleep(1)
+                print('Trying a again in 3s')
+                time.sleep(1)
+                print('Trying a again in 2s')
+                time.sleep(1)
+                print('Trying a again in 1s')
+                time.sleep(1)
+                ahk.doubleClick(left_x + width / 2, top_y - 30)  # 点笑脸重新开始
+                Play()
+                break
+
+Play()
