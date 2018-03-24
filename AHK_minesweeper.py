@@ -8,7 +8,7 @@ import time
 
 ahk.PAUSE = 0.005
 
-left_x, top_y, width, height = ahk.locateOnScreen('initial_screenshot.png')
+left_x, top_y, width, height = (int(_) for _ in ahk.locateOnScreen('initial_screenshot.png'))
 
 blocksize = 16
 halfsize = blocksize // 2
